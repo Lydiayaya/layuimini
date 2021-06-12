@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>layui</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="../lib/layui-v2.6.3/css/layui.css" media="all">
+    <link rel="stylesheet" href="../css/public.css" media="all">
+</head>
+
+<body>
+    <div class="layuimini-container">
+        <div class="layuimini-main">
+            <fieldset class="table-search-fieldset">
+                <legend>搜索信息</legend>
+                <div style="margin: 10px 10px 10px 10px">
+                    <form class="layui-form layui-form-pane" action="">
+                        <div class="layui-form-item">
+                            <div class="layui-inline">
+                                <label class="layui-form-label">奖品名称</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" name="name" id="idReload" autocomplete="off" class="layui-input">
+                                </div>
+                            </div>
+                            <div class="layui-inline">
+                                <button type="submit" class="layui-btn layui-btn-primary" lay-submit
+                                    lay-filter="data-search-btn"><i class="layui-icon"><i class="layui-icon"></i> 搜
+                                        索</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </fieldset>
+            <table class="layui-hide" id="currentTableId" lay-filter="currentTableFilter"></table>
+        </div>
+    </div>
+    <script src="../lib/layui-v2.6.3/layui.js" charset="utf-8"></script>
+    <script src="../js/jquery-1.12.4.min.js"></script>
+    <script src="../js/url.js"></script>
+    <script>
+        layui.use(['form', 'table'], function () {
+            var $ = layui.jquery,
+                form = layui.form,
+                table = layui.table;
+            var userList;
+            var pricename = '3天会员'
+            console.log(pricename)
+            // 获取用户列表---异步，操作要在success
+            function getUserList() {
+                $.ajax({
+                    type: 'post',
+                    url: 'http://' + serverUrl + '/api/prize/issuedPri?keyword=' + pricename,
+                    dataType: 'json',
+                    success: function (res) {
+                        // console.log(res.data)
+                        userList = res.data
+                        //数据获取完成之后再渲染
+                        table.render({
+                            elem: '#currentTableId',
+                            data: userList,
+                            cols: [[
+                                { field: 'uid', title: 'ID', sort: true },
+                                { field: 'name', title: '奖品名称' },
+                                { field: 'issued', title: '已发放份数' },
+                                { field: 'uid', title: '用户id' },
+                                { field: 'nickname', title: '用户昵称' },
+                                { field: 'raffle_time', title: '中奖时间' },
+
+                            ]],
+                            limits: [10, 15, 20, 25, 50, 100],
+                            limit: 15,
+                            page: true,
+                            skin: 'line'
+                        });
+                        // 监听搜索操作
+                        form.on('submit(data-search-btn)', function (data) {
+                            var result = JSON.stringify(data.field);
+                            pricename = JSON.parse(result).name
+                            console.log(pricename);
+                            getUserList()
+                            return false;
+                        });
+                    },
+                    error: function (respon) {
+                        console.log(respon);
+                    }
+                })
+            }
+            getUserList()
+        });
+    </script>
+
+</body>
+
+</html>

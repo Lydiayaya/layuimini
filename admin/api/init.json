@@ -1,0 +1,39 @@
+{
+  "homeInfo": {
+    "title": "参与用户列表",
+    "href": "page/table.html"
+  },
+  "logoInfo": {
+    "title": "administration",
+    "image": "images/logo.png",
+    "href": ""
+  },
+  "menuInfo": [
+    {
+      "title": "常规管理",
+      "icon": "fa fa-address-book",
+      "href": "page/table.html",
+      "target": "_self",
+      "child": [
+        {
+          "title": "参与用户列表",
+          "href": "page/table.html",
+          "icon": "fa fa-calendar",
+          "target": ""
+        },
+        {
+          "title": "奖品发放列表",
+          "href": "page/priceslist.html",
+          "icon": "fa fa-snowflake-o",
+          "target": ""
+        },
+        {
+          "title": "最终大奖分配",
+          "href": "page/excel.html",
+          "icon": "fa fa-snowflake-o",
+          "target": ""
+        }
+      ]
+    }
+  ]
+}

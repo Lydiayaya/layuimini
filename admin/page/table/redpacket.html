@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>layui</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="../../lib/layui-v2.6.3/css/layui.css" media="all">
+    <link rel="stylesheet" href="../../css/public.css" media="all">
+    <style>
+        body {
+            background-color: #ffffff;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="layuimini-container">
+        <p class="userId" style="display: none;"></p>
+        <div class="layuimini-main">
+            <table class="layui-hide" id="currentTableId" lay-filter="currentTableFilter"></table>
+        </div>
+    </div>
+    <script type="text/html" id="currentTableBar">
+        <a class="layui-btn " lay-event="del">删除红包</a>
+    </script>
+
+    <script src="../../lib/layui-v2.6.3/layui.js" charset="utf-8"></script>
+    <script src="../../js/jquery-1.12.4.min.js"></script>
+    <script src="../../js/url.js"></script>
+    <script>
+        //获取ID
+        //把这个换成获取到的id
+        console.log($(".userId").text());
+        var userid = $(".userId").text()
+        layui.use(['form', 'table'], function () {
+            var $ = layui.jquery,
+                form = layui.form,
+                table = layui.table;
+            var userList;
+            // 获取用户列表---异步，操作要在success
+            function getUserList() {
+                $.ajax({
+                    type: 'get',
+                    url: 'http://' + serverUrl + '/api/stayVoice/accList?uid=' + userid,
+                    dataType: 'json',
+                    success: function (res) {
+                        // console.log(res.data)
+                        userList = res.data
+                        //数据获取完成之后再渲染
+                        table.render({
+                            elem: '#currentTableId',
+                            data: userList,
+                            cols: [[
+                                { field: 'id', title: '红包id' },
+                                { field: 'money', title: '待提现金额' },
+                                { field: 'rbType', title: '关卡' },
+                                { title: '操作', toolbar: '#currentTableBar', align: "center" }
+                            ]],
+                            limits: [10, 15, 20, 25, 50, 100],
+                            limit: 15,
+                            page: true,
+                            // width: 300,
+                            skin: 'line'
+                        });
+                        // 监听搜索操作
+                        form.on('submit(data-search-btn)', function (data) {
+                            var result = JSON.stringify(data.field);
+                            layer.alert(result, {
+                                title: '最终的搜索信息'
+                            });
+                            //执行搜索重载
+                            table.reload('currentTableId', {
+                                page: {
+                                    curr: 1
+                                }
+                                , where: {
+                                    searchParams: result
+                                }
+                            }, 'data');
+
+                            return false;
+                        });
+                    },
+                    error: function (respon) {
+                        console.log(respon);
+                    }
+                })
+            }
+            getUserList()
+            /**
+             * toolbar监听事件
+             */
+            table.on('tool(currentTableFilter)', function (obj) {
+                var data = obj.data;
+                var currentId = data.id
+                console.log(currentId)
+                if (obj.event === 'del') {
+                    layer.confirm('真的要删除红包吗？', {
+                        btn: ['确定', '取消'] //按钮
+                    }, function () {
+                        $.ajax({
+                            type: 'post',
+                            url: 'http://' + serverUrl + '/api/stayVoice/delBag?uid=' + userid + '&id=' + currentId,
+                            dataType: 'json',
+                            success: function (res) {
+                                getUserList()
+                                console.log(res)
+                                layer.msg(res.msg, { icon: 1 });
+                            }
+                        })
+
+                    }, function () {
+                        layer.msg('这才对吗，删人家红包干嘛', {
+                            time: 20000, //20s后自动关闭
+                            btn: ['明白了', '知道了']
+                        });
+                    });
+                }
+            });
+
+        });
+    </script>
+
+</body>
+
+</html>

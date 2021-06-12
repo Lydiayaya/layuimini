@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>layui</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+    <link rel="stylesheet" href="../lib/layui-v2.6.3/css/layui.css" media="all">
+    <link rel="stylesheet" href="../css/public.css" media="all">
+    <script src="sheetJS.js"></script>
+</head>
+
+<body>
+
+
+    <button class="download layui-btn layui-btn-primary layui-border-green">下载表格</button>
+    <button class="upload layui-btn layui-btn-primary layui-border-green">上传表格</button>
+    <table class="layui-hide" id="test" lay-filter="test"></table>
+    <script src="../lib/layui-v2.6.3/layui.js" charset="utf-8"></script>
+    <script src="../js/jquery-1.12.4.min.js"></script>
+
+    <!-- 将excel文件转换为JSon对象 -->
+    <script>
+        window.onload = function () {
+            var download = document.querySelector('.download');
+            var upload = document.querySelector('.upload');
+            var sheetName = {
+                uid: '用户ID',
+                username: '用户姓名',
+                prizename: '奖品名称',
+                level: '奖品档次'
+            };
+            var datas = [
+                {
+                    uid: '',
+                    username: '',
+                    prizename: '',
+                    level: ''
+                },
+            ]
+            // 下载
+            download.onclick = function () {
+                var datas = [
+
+                ];
+                console.log(datas); //JSON数据
+                var workbook = sheetJson.toSheet({
+                    sheetName: sheetName,
+                    datas: datas
+                });
+                console.log(workbook);
+                sheetJson.downloadExl(workbook)
+            }
+
+            //给upload注册上传方法
+            sheetJson.uploadXls(upload, function (files) {
+                //解析excel数据
+                sheetJson.readWorkbookFromLocalFile(files, function (workbook) {
+                    console.log(workbook);      //获取到解析的数据
+                    var datas = sheetJson.toJson({
+                        sheetName: sheetName,
+                        datas: workbook,
+                    });
+                    console.log(datas);
+                    layui.use('table', function () {
+                        var table = layui.table,
+                            util = layui.util;;
+                        table.render({
+                            elem: '#test'
+                            , data: datas
+                            , title: '用户数据表'
+                            , totalRow: true
+                            , cols: [[
+                                { field: 'uid', title: '用户ID', fixed: 'left' }
+                                , { field: 'username', title: '用户名' }
+                                , { field: 'prizename', title: '奖品名称' }
+                                , { field: 'level', title: '奖品档次', sort: true }
+                            ]]
+                            , page: true
+                        });
+
+                    });
+                    //JSON数据
+                });
+            }, function (errmsg) {
+                alert(errmsg);
+            })
+            layui.use('table', function () {
+                var table = layui.table,
+                    util = layui.util;;
+                table.render({
+                    elem: '#test'
+                    , data: datas
+                    , title: '用户数据表'
+                    , totalRow: true
+                    , cols: [[
+                        { field: 'uid', title: '用户ID', fixed: 'left' }
+                        , { field: 'username', title: '用户名' }
+                        , { field: 'prizename', title: '奖品名称' }
+                        , { field: 'level', title: '奖品档次', sort: true }
+                    ]]
+                    , page: true
+                });
+
+            });
+
+        }
+
+    </script>
+
+
+</body>
+
+</html>
